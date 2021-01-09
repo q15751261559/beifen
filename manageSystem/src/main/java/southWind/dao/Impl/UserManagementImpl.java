@@ -30,13 +30,21 @@ public class UserManagementImpl implements UserManagementDao {
     public int insertUser(User user) throws SQLException {
         JdbcUtil jdbcUtil=JdbcUtil.getInitJdbcUtil();
         Connection connection=jdbcUtil.getConnection();
-        String sql="INSERT INTO 客户 (客户编号,客户姓名,所购产品,消费时间,信用度) VALUES(?,?,?,?,?)";
+        String sql2="SELECT 客户编号 FROM 客户";
+        PreparedStatement pstmt2=connection.prepareStatement(sql2);
+        ResultSet rs=pstmt2.executeQuery();
+        String id="";
+        while(rs.next())
+        {
+            id=rs.getString("客户编号");
+        }
+        String sql="INSERT INTO 客户 (客户编号,客户姓名,联系方式,联系地址,信用度) VALUES(?,?,?,?,?)";
         PreparedStatement pstmt=connection.prepareStatement(sql);
-        pstmt.setString(1,user.getUserId());
+        pstmt.setString(1,String.valueOf(Integer.parseInt(id)+1));
         pstmt.setString(2,user.getUserName());
-        pstmt.setString(3,user.getUserProduct());
-        pstmt.setObject(4,user.getUserDateTime());
-        pstmt.setString(5,"100");
+        pstmt.setString(3,user.getUserPhone());
+        pstmt.setObject(4,user.getUserAddress());
+        pstmt.setObject(5,"100");
         int n=pstmt.executeUpdate();
         pstmt.close();
         connection.close();

@@ -74,4 +74,19 @@ public class UserManagementImplTest {
         list.forEach(System.out::println);
 
     }
+
+    @Test
+    public void testTestInsertUser() {
+        User user=User.builder()
+                .userName("便意轩")
+                .userPhone("21414")
+                .userAddress("12313312")
+                .build();
+        user.setUserId("111");
+        try {
+            DaoFactory.getUserManagementDaoInstance().insertUser(user);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -14,7 +14,7 @@ import java.sql.SQLException;
 public class JdbcUtil {
     private static final String URL = "jdbc:mysql://127.0.0.1:3306/training_system?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&serverTimezone=GMT%2B8";
     private static final String USERNAME = "root";
-    private static final String PASSWORD = "83228621";
+    private static final String PASSWORD = "q83228621";
     private static Connection connection = null;
     private static JdbcUtil jdbcUtil = null;
 

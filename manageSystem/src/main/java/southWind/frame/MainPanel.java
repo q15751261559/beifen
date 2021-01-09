@@ -11,9 +11,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -31,11 +29,22 @@ public class MainPanel extends JFrame {
     private JButton 员工管理Button;
     private JTextField searchField;
     private JButton 搜索Button;
-    private JButton 保存Button;
+    private JButton 保存全部Button;
     private JButton 重置Button;
+    private JPanel orderPanel;
+    private JButton 新增用户Button;
+    private JPanel leftPanel;
+    private JPanel rightPanel;
+    private JPanel addUserPanel;
+    private JTextField userNameField;
+    private JTextField userPhoneField;
+    private JTextField userAddressField;
+    private JButton 新增客户Button;
+    private JLabel userNameUnderLabel;
     String userName;
     String account;
     private final CardLayout c;
+    private JTable table;
 
     public MainPanel(ResultEntity resultEntity){
         int userType=resultEntity.getCode();
@@ -77,12 +86,76 @@ public class MainPanel extends JFrame {
             }
             showUserTable(list);
         });
+        保存全部Button.addActionListener(e -> {
+            int row = table.getRowCount();
+            for(int i=0;i<row;i++)
+            {
+                User user=new User();
+                    user.setUserId(table.getValueAt(i,0).toString());
+                    user.setUserName(table.getValueAt(i, 1).toString());
+                    user.setUserPhone(table.getValueAt(i, 2).toString());
+                    user.setUserAddress(table.getValueAt(i, 3).toString());
+                    user.setUserCredit(table.getValueAt(i,4).toString());
+                    System.out.println(user.getUserId()+user.getUserName()+user.getUserPhone()+user.getUserAddress()+user.getUserCredit());
+                    try {
+                        DaoFactory.getUserManagementDaoInstance().updateUser(user);
+                    } catch (SQLException throwable) {
+                        JOptionPane.showMessageDialog(this,"保存出错");
+                        throwable.printStackTrace();
+                    }
+            }
+                JOptionPane.showMessageDialog(this,"保存成功");
+        } );
         重置Button.addActionListener(e -> {
+            List<UserVo> list= null;
+            try {
+                list = DaoFactory.getBasicUserDaoInstance().findBasicUserAll();
+            } catch (SQLException c) {
+                c.printStackTrace();
+            }
+            showUserTable(list);
+        });
+        新增用户Button.addActionListener(e -> {
+            boolean visible=addUserPanel.isVisible();
+            if(!visible)
+            {
+                leftPanel.setPreferredSize(new Dimension(200,this.getHeight()-100));
+            }else {
+                leftPanel.setPreferredSize(new Dimension(0,this.getHeight()-100));
+            }
+            addUserPanel.setVisible(!visible);
+        });
+        userNameField.addFocusListener(new FocusAdapter() {
+            public void focusGained(FocusEvent e) {
+                userNameField.setText("");
+            }
+        });
+        userPhoneField.addFocusListener(new FocusAdapter() {
+            public void focusGained(FocusEvent e) {
+                userPhoneField.setText("");
+            }
+        });
+        userAddressField.addFocusListener(new FocusAdapter() {
+            public void focusGained(FocusEvent e) {
+                userAddressField.setText("");
+            }
+        });
+        新增客户Button.addActionListener(e -> {
+            User user=new User();
+            user.setUserName(userNameField.getText().trim());
+            user.setUserPhone(userPhoneField.getText().trim());
+            user.setUserAddress(userAddressField.getText().trim());
+            try {
+                DaoFactory.getUserManagementDaoInstance().insertUser(user);
+                JOptionPane.showMessageDialog(this,"新增成功");
+            } catch (SQLException throwable) {
+                throwable.printStackTrace();
+            }
             try {
                 showUserTable(DaoFactory.getBasicUserDaoInstance().findBasicUserAll());
             } catch (SQLException throwable) {
                 throwable.printStackTrace();
-            };
+            }
         });
     }
 
@@ -186,7 +259,7 @@ public class MainPanel extends JFrame {
     }
     private void showUserTable(List<UserVo> List){
         userTablePanel.removeAll();
-        JTable table = new JTable();
+        table = new JTable();
         //表格数据模型
         DefaultTableModel model = new DefaultTableModel(){
             //除第一列外均可编辑
@@ -214,11 +287,11 @@ public class MainPanel extends JFrame {
         //设置表头大小
         head.setPreferredSize(new Dimension(head.getWidth(), 40));
         //设置表头字体
-        head.setFont(new Font("楷体", Font.PLAIN, 16));
+        head.setFont(new Font("宋体", Font.PLAIN, 16));
         //设置表格行高
         table.setRowHeight(35);
         //表格背景色
-        table.setBackground(new Color(223, 241, 234));
+        table.setBackground(new Color(176, 195, 222));
         //表格内容居中
         DefaultTableCellRenderer r = new DefaultTableCellRenderer();
         r.setHorizontalAlignment(JLabel.CENTER);
@@ -226,19 +299,60 @@ public class MainPanel extends JFrame {
         //表格加入滚动面板,水平垂直方向带滚动条
         JScrollPane scrollPane = new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-//        对每个JList增加弹出菜单
+//      对每个JList增加弹出菜单
         JPopupMenu jPopupMenu = new JPopupMenu();
-        JMenuItem 保存 = new JMenuItem("保存");
+        JMenuItem baocun = new JMenuItem("保存当前行");
         JMenuItem deleteItem = new JMenuItem("删除");
-        jPopupMenu.add(保存);
+        jPopupMenu.add(baocun);
+        baocun.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            System.out.println(row);
+            User user=new User();
+            if (row==-1)
+            {
+                JOptionPane.showMessageDialog(this,"选中数据才能保存");
+            }else {
+                user.setUserId(table.getValueAt(row,0).toString());
+                user.setUserName(table.getValueAt(row, 1).toString());
+                user.setUserPhone(table.getValueAt(row, 2).toString());
+                user.setUserAddress(table.getValueAt(row, 3).toString());
+                user.setUserCredit(table.getValueAt(row,4).toString());
+                System.out.println(user.getUserId()+user.getUserName()+user.getUserPhone()+user.getUserAddress()+user.getUserCredit());
+                try {
+                    DaoFactory.getUserManagementDaoInstance().updateUser(user);
+                    JOptionPane.showMessageDialog(this,"保存成功");
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
+                }
+            }
+        });
+        deleteItem.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            User user=new User();
+            if (row==-1)
+            {
+                JOptionPane.showMessageDialog(this,"选中数据才能删除");
+            }else {
+                user.setUserId(table.getValueAt(row,0).toString());
+                System.out.println(user.getUserId());
+                try {
+                    DaoFactory.getUserManagementDaoInstance().removeUser(user);
+                    model.removeRow(row);
+                    JOptionPane.showMessageDialog(this,"删除成功");
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
+                }
+            }
+        });
         jPopupMenu.add(deleteItem);
         table.add(jPopupMenu);
         table.addMouseListener(new MouseListener(){
             public void mouseClicked(MouseEvent e) {
-                // 点击几次，这里是双击事件
                 if (e.getButton()==3) {
                     int right=table.rowAtPoint(e.getPoint());
                     System.out.println(right);
+                    table.setRowSelectionInterval(right,right);
+                    jPopupMenu.show(table, e.getX()+15, e.getY()+10);
                 }
             }
 
@@ -260,33 +374,6 @@ public class MainPanel extends JFrame {
 
             }
             });
-
-
-
-
-        保存Button.addActionListener(e -> {
-            int row = table.getSelectedRow();
-            System.out.println(row);
-            User user=new User();
-            int i=0;
-            if (row==-1)
-            {
-                JOptionPane.showMessageDialog(this,"选中数据才能保存");
-            }else {
-            user.setUserId(table.getValueAt(row,0).toString());
-            user.setUserName(table.getValueAt(row, 1).toString());
-            user.setUserPhone(table.getValueAt(row, 2).toString());
-            user.setUserAddress(table.getValueAt(row, 3).toString());
-            user.setUserCredit(table.getValueAt(row,4).toString());
-            System.out.println(user.getUserId()+user.getUserName()+user.getUserPhone()+user.getUserAddress()+user.getUserCredit());
-            try {
-                DaoFactory.getUserManagementDaoInstance().updateUser(user);
-                JOptionPane.showMessageDialog(this,"保存成功");
-            } catch (SQLException throwable) {
-                throwable.printStackTrace();
-            }
-            }
-        } );
         userTablePanel.add(scrollPane);
         userTablePanel.revalidate();
     }
