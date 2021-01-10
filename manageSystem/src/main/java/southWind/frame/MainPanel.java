@@ -14,6 +14,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 public class MainPanel extends JFrame {
     private JPanel mainPanel;
@@ -76,6 +77,9 @@ public class MainPanel extends JFrame {
             c.show(centerPanel, "2");
             showUser();
         }
+        客户管理Button.addActionListener(e -> {
+
+        });
         搜索Button.addActionListener(e -> {
             String userName= searchField.getText().trim();
             List<UserVo> list= null;
@@ -142,19 +146,28 @@ public class MainPanel extends JFrame {
         });
         新增客户Button.addActionListener(e -> {
             User user=new User();
-            user.setUserName(userNameField.getText().trim());
-            user.setUserPhone(userPhoneField.getText().trim());
-            user.setUserAddress(userAddressField.getText().trim());
-            try {
-                DaoFactory.getUserManagementDaoInstance().insertUser(user);
-                JOptionPane.showMessageDialog(this,"新增成功");
-            } catch (SQLException throwable) {
-                throwable.printStackTrace();
+            String userName=userNameField.getText().trim();
+            String userPhone=userPhoneField.getText().trim();
+            String address=userAddressField.getText().trim();
+            if (userName.equals("")||userPhone.equals("")||address.equals("")||userName.equals("新增客户姓名")||userPhone.equals("新增客户联系方式")||address.equals("新增客户地址"))
+            {
+                JOptionPane.showMessageDialog(this,"输入不能为空");
             }
-            try {
-                showUserTable(DaoFactory.getBasicUserDaoInstance().findBasicUserAll());
-            } catch (SQLException throwable) {
-                throwable.printStackTrace();
+            else {
+                user.setUserName(userNameField.getText().trim());
+                user.setUserPhone(userPhoneField.getText().trim());
+                user.setUserAddress(userAddressField.getText().trim());
+                try {
+                    DaoFactory.getUserManagementDaoInstance().insertUser(user);
+                    JOptionPane.showMessageDialog(this, "新增成功");
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
+                }
+                try {
+                    showUserTable(DaoFactory.getBasicUserDaoInstance().findBasicUserAll());
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
+                }
             }
         });
     }
