@@ -108,11 +108,10 @@ public class UserManagementImpl implements UserManagementDao {
     {
         JdbcUtil jdbcUtil=JdbcUtil.getInitJdbcUtil();
         Connection connection=jdbcUtil.getConnection();
-        String sql="UPDATE 订单 SET 订单产品=?,购买时间=? WHERE 订单编号=?";
+        String sql="UPDATE 订单 SET 订单产品=? WHERE 订单编号=?";
         PreparedStatement pstmt=connection.prepareStatement(sql);
         pstmt.setString(1,order.getOrderProductId());
-        pstmt.setTimestamp(2,new Timestamp(order.getOrderDatetime().getTime()));
-        pstmt.setString(3,order.getOrderId());
+        pstmt.setString(2,order.getOrderId());
         int n=pstmt.executeUpdate();
         pstmt.close();
         connection.close();

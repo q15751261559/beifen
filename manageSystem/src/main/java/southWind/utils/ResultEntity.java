@@ -21,4 +21,5 @@ public class ResultEntity {
     private Object data;
     private String userAccount;
     private String userName;
+    private String userId;
 }

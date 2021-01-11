@@ -53,6 +53,33 @@ public class BasicUserDaoImpl implements BasicUserDao {
         jdbcUtil.closeConnection();
        return  userList;
     }
+    @Override
+    public List<UserVo> findBasicUserByUserId(String userName) throws SQLException {
+        JdbcUtil jdbcUtil=JdbcUtil.getInitJdbcUtil();
+        Connection connection=jdbcUtil.getConnection();
+        String sql="SELECT 客户编号,客户姓名,联系方式,联系地址,信用度 FROM 客户 WHERE 客户编号=?";
+        PreparedStatement pstmt=connection.prepareStatement(sql);
+        System.out.println(userName);
+        pstmt.setString(1,userName);
+        System.out.println(pstmt);
+        ResultSet rs=pstmt.executeQuery();
+        List<UserVo> userList=new ArrayList<>();
+        while(rs.next())
+        {
+            UserVo vo=UserVo.builder()
+                    .id(rs.getString("客户编号"))
+                    .name(rs.getString("客户姓名"))
+                    .phone(rs.getString("联系方式"))
+                    .address(rs.getString("联系地址"))
+                    .credit(rs.getString("信用度"))
+                    .build();
+            userList.add(vo);
+        }
+        rs.close();
+        pstmt.close();
+        jdbcUtil.closeConnection();
+        return  userList;
+    }
 
 
     @Override
@@ -111,7 +138,7 @@ public class BasicUserDaoImpl implements BasicUserDao {
         Connection connection=jdbcUtil.getConnection();
         String sql="select 订单编号,客户编号,客户姓名,信用度,产品编号,产品名称,生产日期,产品类型,价格,购买时间\n" +
                 "                From 客户,订单,产品\n" +
-                "                where 订单.消费客户=客户.客户编号 and 订单.订单产品=产品.产品编号";
+                "                where 订单.消费客户=客户.客户编号 and 订单.订单产品=产品.产品编号 order by 订单编号 ";
         PreparedStatement pstmt=connection.prepareStatement(sql);
         ResultSet rs=pstmt.executeQuery();
         List<order> orders=new ArrayList<>();
@@ -165,13 +192,48 @@ public class BasicUserDaoImpl implements BasicUserDao {
         String sql="select 订单编号,客户编号,客户姓名,信用度,产品编号,产品名称,生产日期,产品类型,价格,购买时间\n" +
                 "                From 客户,订单,产品\n" +
                 "                where 订单.消费客户=客户.客户编号 and 订单.订单产品=产品.产品编号 and \n" +
-                "                (客户编号 like ? or 订单编号 like ? or 客户姓名 like ? or 产品名称 like ?)";
+                "                ( 订单编号 like ? or 客户编号 like ? or 客户姓名 like ? or 产品名称 like ?) order by 订单编号";
         PreparedStatement pstmt=connection.prepareStatement(sql);
         System.out.println(orderName);
         pstmt.setString(1,orderName+"%");
         pstmt.setString(2,orderName+"%");
         pstmt.setString(3,"%"+orderName+"%");
         pstmt.setString(4,"%"+orderName+"%");
+        System.out.println(pstmt);
+        ResultSet rs=pstmt.executeQuery();
+        List<order> orders=new ArrayList<>();
+        while(rs.next())
+        {
+            order order1=order.builder()
+                    .orderId(rs.getString("订单编号"))
+                    .userId(rs.getString("客户编号"))
+                    .userName(rs.getString("客户姓名"))
+                    .userCredit(rs.getString("信用度"))
+                    .orderProductId(rs.getString("产品编号"))
+                    .orderProductName(rs.getString("产品名称"))
+                    .productDatetime(rs.getTimestamp("生产日期"))
+                    .productType(rs.getString("产品类型"))
+                    .price(rs.getString("价格"))
+                    .orderDatetime(rs.getTimestamp("购买时间"))
+                    .build();
+            orders.add(order1);
+        }
+        rs.close();
+        pstmt.close();
+        jdbcUtil.closeConnection();
+        return  orders;
+    }
+
+    public List<order> findBasicOrderByOrderId(String orderName) throws SQLException {
+        JdbcUtil jdbcUtil=JdbcUtil.getInitJdbcUtil();
+        Connection connection=jdbcUtil.getConnection();
+        String sql="select 订单编号,客户编号,客户姓名,信用度,产品编号,产品名称,生产日期,产品类型,价格,购买时间\n" +
+                "                From 客户,订单,产品\n" +
+                "                where 订单.消费客户=客户.客户编号 and 订单.订单产品=产品.产品编号 and \n" +
+                "                (客户编号 like ? ) order by 订单编号";
+        PreparedStatement pstmt=connection.prepareStatement(sql);
+        System.out.println(orderName);
+        pstmt.setString(1,orderName);
         System.out.println(pstmt);
         ResultSet rs=pstmt.executeQuery();
         List<order> orders=new ArrayList<>();

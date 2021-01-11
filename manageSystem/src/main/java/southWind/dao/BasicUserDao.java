@@ -45,4 +45,8 @@ public interface BasicUserDao {
     List<Protect> findBasicProtectAll()throws SQLException;
 
     List<order> findBasicOrderByOrderName(String orderName)throws SQLException;
+
+    List<order> findBasicOrderByOrderId(String orderName)throws SQLException;
+
+    List<UserVo> findBasicUserByUserId(String userId) throws SQLException;
 }

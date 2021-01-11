@@ -55,6 +55,7 @@ public class MainPanel extends JFrame {
     private final CardLayout c;
     private MyTable table;
     private String type;
+    private String user_type;
 
 
     public static void main(String[] args) {
@@ -76,6 +77,7 @@ public class MainPanel extends JFrame {
         centerPanel.add("2", userPanel);
         centerPanel.add("3", rewardPanel);
         if (userType==0) {
+            user_type="管理员登录";
             c.show(centerPanel, "0");
             List<UserVo> list= null;
             try {
@@ -86,27 +88,57 @@ public class MainPanel extends JFrame {
             showUserTable(list);
         }
         if (userType==1) {
-            c.show(centerPanel, "1");
-            showMember();
-        }
-        if (userType==2) {
-            c.show(centerPanel, "2");
-            showUser();
+            user_type="客户登录";
+            c.show(centerPanel, "0");
+            System.out.println(resultEntity.getUserId());
+            新增Button.setVisible(false);
+            保存全部Button.setVisible(false);
+            searchField.setVisible(false);
+            重置Button.setVisible(false);
+            搜索Button.setVisible(false);
+            员工管理Button.setVisible(false);
+            List<UserVo> list= null;
+            try {
+                list=DaoFactory.getBasicUserDaoInstance().findBasicUserByUserId(resultEntity.getUserId());
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            showUserTable(list);
         }
         客户管理Button.addActionListener(e -> {
             List<UserVo> list= null;
-            try {
-                list = DaoFactory.getBasicUserDaoInstance().findBasicUserAll();
-            } catch (SQLException c) {
-                c.printStackTrace();
+            if (user_type.equals("客户登录")){
+                try {
+                    list=DaoFactory.getBasicUserDaoInstance().findBasicUserByUserId(resultEntity.getUserId());
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+                showUserTable(list);
             }
-            showUserTable(list);
+            if (user_type.equals("管理员登录")) {
+                try {
+                    list = DaoFactory.getBasicUserDaoInstance().findBasicUserAll();
+                } catch (SQLException c) {
+                    c.printStackTrace();
+                }
+                showUserTable(list);
+            }
         });
         订单管理Button.addActionListener(e -> {
-            try {
-                showOrderTable(DaoFactory.getBasicUserDaoInstance().findBasicOrderAll());
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
+            if (user_type.equals("客户登录"))
+            {
+                try {
+                    showOrderTable(DaoFactory.getBasicUserDaoInstance().findBasicOrderByOrderId(resultEntity.getUserId()));
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
+            if (user_type.equals("管理员登录")) {
+                try {
+                    showOrderTable(DaoFactory.getBasicUserDaoInstance().findBasicOrderAll());
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
             }
         });
         搜索Button.addActionListener(e -> {
@@ -153,7 +185,19 @@ public class MainPanel extends JFrame {
             }
             if (type.equals("订单"))
             {
-
+                int row = table.getRowCount();
+                for (int i = 0; i < row; i++) {
+                    order order = new order();
+                    order.setOrderId(table.getValueAt(i, 0).toString());
+                    order.setOrderProductId(table.getValueAt(i, 4).toString());
+                    try {
+                        DaoFactory.getUserManagementDaoInstance().updateOrder(order);
+                    } catch (SQLException throwable) {
+                        JOptionPane.showMessageDialog(this, "保存出错");
+                        throwable.printStackTrace();
+                    }
+                }
+                JOptionPane.showMessageDialog(this, "保存成功");
             }
         } );
         重置Button.addActionListener(e -> {
@@ -227,7 +271,6 @@ public class MainPanel extends JFrame {
             }
         });
     }
-
     private void init() {
         this.setContentPane(mainPanel);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -324,6 +367,9 @@ public class MainPanel extends JFrame {
             centerPanel.revalidate();
     }
     private void showUserTable(List<UserVo> List){
+        if (user_type.equals("管理员登录")) {
+            新增Button.setVisible(true);
+        }
         type="客户";
         新增Button.setText("新增客户(切换显示)");
         TablePanel.removeAll();
@@ -333,10 +379,16 @@ public class MainPanel extends JFrame {
             //除第一列外均可编辑
             public boolean isCellEditable(int row,int column)
             {
-                if (column==0) {
+                if (user_type.equals("客户登录"))
+                {
                     return false;
-                }else {
-                    return true;
+                }
+                else {
+                    if (column == 0) {
+                        return false;
+                    } else {
+                        return true;
+                    }
                 }
             }
         };
@@ -371,6 +423,24 @@ public class MainPanel extends JFrame {
         JPopupMenu jPopupMenu = new JPopupMenu();
         JMenuItem baocun = new JMenuItem("保存当前行");
         JMenuItem deleteItem = new JMenuItem("删除");
+        JMenuItem userOrder = new JMenuItem("查看选中用户订单");
+        userOrder.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            String userId= (String) table.getValueAt(row,0);
+            List<order> orders=null;
+            if (row==-1)
+            {
+                JOptionPane.showMessageDialog(this,"选中数据才能查看");
+            }else {
+                try {
+                    orders=DaoFactory.getBasicUserDaoInstance().findBasicOrderByOrderId(userId);
+                    showOrderTable(orders);
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
+                }
+            }
+        });
+        jPopupMenu.add(userOrder);
         jPopupMenu.add(baocun);
         baocun.addActionListener(e -> {
             int row = table.getSelectedRow();
@@ -416,11 +486,13 @@ public class MainPanel extends JFrame {
         table.add(jPopupMenu);
         table.addMouseListener(new MouseListener(){
             public void mouseClicked(MouseEvent e) {
-                if (e.getButton()==3) {
-                    int right=table.rowAtPoint(e.getPoint());
-                    System.out.println(right);
-                    table.setRowSelectionInterval(right,right);
-                    jPopupMenu.show(table, e.getX()+15, e.getY()+10);
+                if(user_type.equals("管理员登录")) {
+                    if (e.getButton() == 3) {
+                        int right = table.rowAtPoint(e.getPoint());
+                        System.out.println(right);
+                        table.setRowSelectionInterval(right, right);
+                        jPopupMenu.show(table, e.getX() + 15, e.getY() + 10);
+                    }
                 }
             }
 
@@ -447,7 +519,7 @@ public class MainPanel extends JFrame {
     }
     private void showOrderTable(List<order> List)
     {
-
+        新增Button.setVisible(false);
         type="订单";
         新增Button.setText("新增订单(切换显示)");
         TablePanel.removeAll();
@@ -457,10 +529,16 @@ public class MainPanel extends JFrame {
             //只有第六列可以编辑
             public boolean isCellEditable(int row,int column)
             {
-                if (column==5) {
-                    return true;
-                }else {
+                if (user_type.equals("客户登录"))
+                {
                     return false;
+                }
+                else {
+                    if (column == 5) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 }
             }
         };
@@ -587,8 +665,7 @@ public class MainPanel extends JFrame {
                 JOptionPane.showMessageDialog(this,"选中数据才能保存");
             }else {
                 order.setOrderId(table.getValueAt(row,0).toString());
-                order.setOrderProductName(((String[]) table.getValueAt(row,1))[0]);
-                order.setOrderDatetime((Date) table.getValueAt(row,2));
+                order.setOrderProductId(table.getValueAt(row,4).toString());
                 try {
                     DaoFactory.getUserManagementDaoInstance().updateOrder(order);
                     JOptionPane.showMessageDialog(this,"保存成功");
@@ -616,14 +693,16 @@ public class MainPanel extends JFrame {
             }
         });
         jPopupMenu.add(deleteItem);
-        table.add(jPopupMenu);
+            table.add(jPopupMenu);
         table.addMouseListener(new MouseListener(){
             public void mouseClicked(MouseEvent e) {
-                if (e.getButton()==3) {
-                    int right=table.rowAtPoint(e.getPoint());
-                    System.out.println(right);
-                    table.setRowSelectionInterval(right,right);
-                    jPopupMenu.show(table, e.getX()+15, e.getY()+10);
+                if(user_type.equals("管理员登录")) {
+                    if (e.getButton() == 3) {
+                        int right = table.rowAtPoint(e.getPoint());
+                        System.out.println(right);
+                        table.setRowSelectionInterval(right, right);
+                        jPopupMenu.show(table, e.getX() + 15, e.getY() + 10);
+                    }
                 }
             }
 

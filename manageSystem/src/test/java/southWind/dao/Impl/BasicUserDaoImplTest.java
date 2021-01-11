@@ -65,4 +65,15 @@ public class BasicUserDaoImplTest {
         }
         orders.forEach(System.out::println);
     }
+@Test
+    public void testFindBasicUserByUserId() {
+        String id="1";
+    List<UserVo> list= null;
+    try {
+        list = DaoFactory.getBasicUserDaoInstance().findBasicUserByUserId("1");
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    list.forEach(System.out::println);
+    }
 }

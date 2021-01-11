@@ -27,10 +27,9 @@ public class UserLoginServiceImpl implements southWind.service.UserLoginService 
         }catch (SQLException e){
             System.err.println("根据帐号查询用户信息出现了SQL异常");
         }
-
         if(user!=null){
             if(DigestUtils.md5Hex(password).equals(user.getPassword())){
-                resultEntity=ResultEntity.builder().code(1).userAccount(user.getAccount()).userName(user.getUser_name()).message("欢迎"+user.getUser_name()+"您的登录").data(user).build();
+                resultEntity=ResultEntity.builder().code(1).userAccount(user.getAccount()).userId(String.valueOf(user.getId())).userName(user.getUser_name()).message("欢迎"+user.getUser_name()+"您的登录").data(user).build();
             }else {
                 resultEntity=ResultEntity.builder().code(3).message("密码错误").build();
             }
