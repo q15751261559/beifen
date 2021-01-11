@@ -57,7 +57,6 @@ public class MainPanel extends JFrame {
     private String type;
     private String user_type;
 
-
     public static void main(String[] args) {
         ResultEntity resultEntity=ResultEntity.builder()
                 .code(0)
@@ -495,7 +494,6 @@ public class MainPanel extends JFrame {
                     }
                 }
             }
-
             @Override
             public void mousePressed(MouseEvent e) {
             }
@@ -570,10 +568,8 @@ public class MainPanel extends JFrame {
                     str[i]=protectsName;
                 }
             }
-//            System.out.println(Arrays.toString((String[]) str));
             Object[] object = new Object[]{order.getOrderId(),order.getUserId(),order.getUserName(),order.getUserCredit(),
             order.getOrderProductId(),str,order.getProductDatetime(),order.getProductType(),order.getPrice(),order.getOrderDatetime()};
-//            System.out.println(Arrays.toString((String[]) object[1]));
             model.addRow(object);
             System.out.println(Arrays.toString((String[]) table.getValueAt(model.getRowCount()-1,5)));
         }
@@ -643,7 +639,7 @@ public class MainPanel extends JFrame {
         head.setFont(new Font("宋体", Font.PLAIN, 16));
         //设置表格行高
         table.setRowHeight(35);
-        //表格背景色
+        //
         table.setBackground(new Color(176, 195, 222));
         //表格内容居中
         DefaultTableCellRenderer r = new DefaultTableCellRenderer();

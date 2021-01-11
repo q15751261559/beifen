@@ -31,7 +31,7 @@ public interface BasicUserDao {
      * @return
      * @throws SQLException
      */
-    List<UserOutComeVo> findUserOutComeById(String userId) throws  SQLException;
+    List<UserOutComeVo> findUserOutComeById(String userId) throws SQLException;
     /**
      * 查询所有用户信息
      * @param
@@ -48,5 +48,11 @@ public interface BasicUserDao {
 
     List<order> findBasicOrderByOrderId(String orderName)throws SQLException;
 
+    /**
+     * 根据用户id返回用户集合
+     * @param userId
+     * @return
+     * @throws SQLException
+     */
     List<UserVo> findBasicUserByUserId(String userId) throws SQLException;
 }

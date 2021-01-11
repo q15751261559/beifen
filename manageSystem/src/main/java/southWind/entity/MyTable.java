@@ -75,7 +75,7 @@ public class MyTable extends JTable {
                     StringList.add(args[i]);
                 }
             }
-            String  []  strings= StringList.toArray(new  String[args.length]);
+            String[] strings= StringList.toArray(new  String[args.length]);
             return strings;
         }
     }
