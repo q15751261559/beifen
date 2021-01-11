@@ -1,20 +1,28 @@
 package southWind.frame;
 
+import southWind.entity.MyTable;
+import southWind.entity.Protect;
 import southWind.entity.User;
 import southWind.entity.Vo.UserVo;
+import southWind.entity.order;
 import southWind.factory.DaoFactory;
 import southWind.utils.ResultEntity;
 import sun.swing.table.DefaultTableCellHeaderRenderer;
 
 import javax.swing.*;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.Array;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 public class MainPanel extends JFrame {
     private JPanel mainPanel;
@@ -23,7 +31,7 @@ public class MainPanel extends JFrame {
     private JPanel memberPanel;
     private JPanel userPanel;
     private JPanel rewardPanel;
-    private JPanel userTablePanel;
+    private JPanel TablePanel;
     private JPanel topPanel;
     private JButton 订单管理Button;
     private JButton 客户管理Button;
@@ -33,7 +41,7 @@ public class MainPanel extends JFrame {
     private JButton 保存全部Button;
     private JButton 重置Button;
     private JPanel orderPanel;
-    private JButton 新增用户Button;
+    private JButton 新增Button;
     private JPanel leftPanel;
     private JPanel rightPanel;
     private JPanel addUserPanel;
@@ -45,8 +53,16 @@ public class MainPanel extends JFrame {
     String userName;
     String account;
     private final CardLayout c;
-    private JTable table;
+    private MyTable table;
+    private String type;
 
+
+    public static void main(String[] args) {
+        ResultEntity resultEntity=ResultEntity.builder()
+                .code(0)
+                .build();
+        new MainPanel(resultEntity);
+    }
     public MainPanel(ResultEntity resultEntity){
         int userType=resultEntity.getCode();
         account=resultEntity.getUserAccount();
@@ -78,39 +94,6 @@ public class MainPanel extends JFrame {
             showUser();
         }
         客户管理Button.addActionListener(e -> {
-
-        });
-        搜索Button.addActionListener(e -> {
-            String userName= searchField.getText().trim();
-            List<UserVo> list= null;
-            try {
-                list=DaoFactory.getBasicUserDaoInstance().findBasicUserByUserName(userName);
-            } catch (SQLException throwable) {
-                throwable.printStackTrace();
-            }
-            showUserTable(list);
-        });
-        保存全部Button.addActionListener(e -> {
-            int row = table.getRowCount();
-            for(int i=0;i<row;i++)
-            {
-                User user=new User();
-                    user.setUserId(table.getValueAt(i,0).toString());
-                    user.setUserName(table.getValueAt(i, 1).toString());
-                    user.setUserPhone(table.getValueAt(i, 2).toString());
-                    user.setUserAddress(table.getValueAt(i, 3).toString());
-                    user.setUserCredit(table.getValueAt(i,4).toString());
-                    System.out.println(user.getUserId()+user.getUserName()+user.getUserPhone()+user.getUserAddress()+user.getUserCredit());
-                    try {
-                        DaoFactory.getUserManagementDaoInstance().updateUser(user);
-                    } catch (SQLException throwable) {
-                        JOptionPane.showMessageDialog(this,"保存出错");
-                        throwable.printStackTrace();
-                    }
-            }
-                JOptionPane.showMessageDialog(this,"保存成功");
-        } );
-        重置Button.addActionListener(e -> {
             List<UserVo> list= null;
             try {
                 list = DaoFactory.getBasicUserDaoInstance().findBasicUserAll();
@@ -119,7 +102,80 @@ public class MainPanel extends JFrame {
             }
             showUserTable(list);
         });
-        新增用户Button.addActionListener(e -> {
+        订单管理Button.addActionListener(e -> {
+            try {
+                showOrderTable(DaoFactory.getBasicUserDaoInstance().findBasicOrderAll());
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        });
+        搜索Button.addActionListener(e -> {
+            String Name= searchField.getText().trim();
+            if(type.equals("客户")) {
+                List<UserVo> list = null;
+                try {
+                    list = DaoFactory.getBasicUserDaoInstance().findBasicUserByUserName(Name);
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
+                }
+                showUserTable(list);
+            }
+            if (type.equals("订单"))
+            {
+                List<order> list = null;
+                try {
+                    list = DaoFactory.getBasicUserDaoInstance().findBasicOrderByOrderName(Name);
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
+                }
+                showOrderTable(list);
+            }
+        });
+        保存全部Button.addActionListener(e -> {
+            if (type.equals("客户")) {
+                int row = table.getRowCount();
+                for (int i = 0; i < row; i++) {
+                    User user = new User();
+                    user.setUserId(table.getValueAt(i, 0).toString());
+                    user.setUserName(table.getValueAt(i, 1).toString());
+                    user.setUserPhone(table.getValueAt(i, 2).toString());
+                    user.setUserAddress(table.getValueAt(i, 3).toString());
+                    user.setUserCredit(table.getValueAt(i, 4).toString());
+                    System.out.println(user.getUserId() + user.getUserName() + user.getUserPhone() + user.getUserAddress() + user.getUserCredit());
+                    try {
+                        DaoFactory.getUserManagementDaoInstance().updateUser(user);
+                    } catch (SQLException throwable) {
+                        JOptionPane.showMessageDialog(this, "保存出错");
+                        throwable.printStackTrace();
+                    }
+                }
+                JOptionPane.showMessageDialog(this, "保存成功");
+            }
+            if (type.equals("订单"))
+            {
+
+            }
+        } );
+        重置Button.addActionListener(e -> {
+            if (type.equals("客户")) {
+                List<UserVo> list = null;
+                try {
+                    list = DaoFactory.getBasicUserDaoInstance().findBasicUserAll();
+                } catch (SQLException c) {
+                    c.printStackTrace();
+                }
+                showUserTable(list);
+            }
+            if (type.equals("订单"))
+            {
+                try {
+                    showOrderTable(DaoFactory.getBasicUserDaoInstance().findBasicOrderAll());
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }
+        });
+        新增Button.addActionListener(e -> {
             boolean visible=addUserPanel.isVisible();
             if(!visible)
             {
@@ -179,9 +235,6 @@ public class MainPanel extends JFrame {
         this.setVisible(true);
     }
 
-    public static void main(String[] args) {
-
-    }
 
     private void showMember()
     {
@@ -220,7 +273,7 @@ public class MainPanel extends JFrame {
 
     private void showAdmin() {
         //移除原有数据
-        centerPanel.removeAll();
+        TablePanel.removeAll();
         //从Service层获取到所有院系列表
 //        List<Department> departmentList = ServiceFactory.getDepartmentServiceInstance().selectAll();
         //获取总数
@@ -271,8 +324,10 @@ public class MainPanel extends JFrame {
             centerPanel.revalidate();
     }
     private void showUserTable(List<UserVo> List){
-        userTablePanel.removeAll();
-        table = new JTable();
+        type="客户";
+        新增Button.setText("新增客户(切换显示)");
+        TablePanel.removeAll();
+        table = new MyTable();
         //表格数据模型
         DefaultTableModel model = new DefaultTableModel(){
             //除第一列外均可编辑
@@ -387,7 +442,211 @@ public class MainPanel extends JFrame {
 
             }
             });
-        userTablePanel.add(scrollPane);
-        userTablePanel.revalidate();
+        TablePanel.add(scrollPane);
+        TablePanel.revalidate();
     }
+    private void showOrderTable(List<order> List)
+    {
+
+        type="订单";
+        新增Button.setText("新增订单(切换显示)");
+        TablePanel.removeAll();
+        table = new MyTable();
+        //表格数据模型
+        DefaultTableModel model = new DefaultTableModel(){
+            //只有第六列可以编辑
+            public boolean isCellEditable(int row,int column)
+            {
+                if (column==5) {
+                    return true;
+                }else {
+                    return false;
+                }
+            }
+        };
+        table.setModel(model);
+        model.setColumnIdentifiers(new String[]{"订单编号","客户编号","客户姓名","信用度","产品编号","产品名称","生产日期","产品类型","价格","购买时间"});
+        //获得所有产品的集合
+        List<Protect> protects=null;
+        try {
+            protects=DaoFactory.getBasicUserDaoInstance().findBasicProtectAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        ArrayList<String> value=new ArrayList<>();
+        for (Protect protect : protects)
+        {
+            value.add(protect.getProtectName());
+        }
+
+        for (order order : List) {
+//          订单的当前产品为首选
+            String[] str=value.toArray(new String[value.size()]);
+            for (int i=0;i<str.length;i++)
+            {
+                String protectsName;
+                if (order.getOrderProductName().equals(str[i]))
+                {
+                    protectsName=str[0];
+                    str[0]=str[i];
+                    str[i]=protectsName;
+                }
+            }
+//            System.out.println(Arrays.toString((String[]) str));
+            Object[] object = new Object[]{order.getOrderId(),order.getUserId(),order.getUserName(),order.getUserCredit(),
+            order.getOrderProductId(),str,order.getProductDatetime(),order.getProductType(),order.getPrice(),order.getOrderDatetime()};
+//            System.out.println(Arrays.toString((String[]) object[1]));
+            model.addRow(object);
+            System.out.println(Arrays.toString((String[]) table.getValueAt(model.getRowCount()-1,5)));
+        }
+//        order order1=order.builder()
+//                .orderId(rs.getString("订单编号"))
+//                .userId(rs.getString("客户编号"))
+//                .userName(rs.getString("客户姓名"))
+//                .userCredit(rs.getString("信用度"))
+//                .orderProductId(rs.getString("产品编号"))
+//                .orderProductName(rs.getString("产品名称"))
+//                .productDatetime(rs.getTimestamp("生产日期"))
+//                .productType(rs.getString("产品类型"))
+//                .price(rs.getString("价格"))
+//                .orderDatetime(rs.getTimestamp("购买时间"))
+//                .build();
+//        String[] values = new String[] { "5", "2", "3" };//这是下拉框的元素 由于是下拉框，这里必须是string数组传入
+//        String[] value1 = new String[] { "3", "2", "1" };
+//        String[] value2 = new String[] { "7", "8", "1" };
+//        Object[] object1 = new Object[]{"111",values};
+//        Object[] object2 = new Object[]{"111",value1};
+//        Object[] object3 = new Object[]{"111",value2};
+//        System.out.println(Arrays.toString((String[]) object1[1]));
+//        System.out.println(Arrays.toString((String[]) object2[1]));
+//        System.out.println(Arrays.toString((String[]) object3[1]));
+//        model.addRow(object1);
+//        model.addRow(object2);
+//        model.addRow(object3);
+
+        //重写jtable内插入下拉框
+        MyTable.MyComboBoxEditor myComboBoxEditor=new MyTable.MyComboBoxEditor();
+//        设置下拉框的改变事件
+        java.util.List<Protect> finalProtects = protects;
+        myComboBoxEditor.addCellEditorListener(new CellEditorListener() {
+            @Override
+            public void editingStopped(ChangeEvent e) {
+                String[] strS=myComboBoxEditor.getCellEditorValue();
+                int row=table.getSelectedRow();
+                for (Protect protect : finalProtects)
+                {
+                    if (strS[0].equals(protect.getProtectName()))
+                    {
+                        model.setValueAt(protect.getProtectId(),row,4);
+                        model.setValueAt(protect.getCreateTime(),row,6);
+                        model.setValueAt(protect.getProtectType(),row,7);
+                        model.setValueAt(protect.getPrice(),row,8);
+                    }
+                }
+            }
+
+            @Override
+            public void editingCanceled(ChangeEvent e) {
+
+            }
+        });
+        table.getColumnModel().getColumn(5).setCellEditor(myComboBoxEditor);
+        MyTable.comboxRenderer comboxRenderer=new MyTable.comboxRenderer();
+        table.getColumnModel().getColumn(5).setCellRenderer(comboxRenderer);
+        //获得表头
+        JTableHeader head = table.getTableHeader();
+        //表头居中
+        DefaultTableCellHeaderRenderer hr = new DefaultTableCellHeaderRenderer();
+        hr.setHorizontalAlignment(JLabel.CENTER);
+        head.setDefaultRenderer(hr);
+        //设置表头大小
+        head.setPreferredSize(new Dimension(head.getWidth(), 40));
+        //设置表头字体
+        head.setFont(new Font("宋体", Font.PLAIN, 16));
+        //设置表格行高
+        table.setRowHeight(35);
+        //表格背景色
+        table.setBackground(new Color(176, 195, 222));
+        //表格内容居中
+        DefaultTableCellRenderer r = new DefaultTableCellRenderer();
+        r.setHorizontalAlignment(JLabel.CENTER);
+        table.setDefaultRenderer(Object.class, r);
+        //表格加入滚动面板,水平垂直方向带滚动条
+        JScrollPane scrollPane = new JScrollPane(table, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+//      对每个JList增加弹出菜单
+        JPopupMenu jPopupMenu = new JPopupMenu();
+        JMenuItem baocun = new JMenuItem("保存当前行");
+        JMenuItem deleteItem = new JMenuItem("删除");
+        jPopupMenu.add(baocun);
+        baocun.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            order order=new order();
+            if (row==-1)
+            {
+                JOptionPane.showMessageDialog(this,"选中数据才能保存");
+            }else {
+                order.setOrderId(table.getValueAt(row,0).toString());
+                order.setOrderProductName(((String[]) table.getValueAt(row,1))[0]);
+                order.setOrderDatetime((Date) table.getValueAt(row,2));
+                try {
+                    DaoFactory.getUserManagementDaoInstance().updateOrder(order);
+                    JOptionPane.showMessageDialog(this,"保存成功");
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
+                }
+            }
+        });
+        deleteItem.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            User user=new User();
+            if (row==-1)
+            {
+                JOptionPane.showMessageDialog(this,"选中数据才能删除");
+            }else {
+                user.setUserId(table.getValueAt(row,0).toString());
+                System.out.println(user.getUserId());
+                try {
+                    DaoFactory.getUserManagementDaoInstance().removeUser(user);
+                    model.removeRow(row);
+                    JOptionPane.showMessageDialog(this,"删除成功");
+                } catch (SQLException throwable) {
+                    throwable.printStackTrace();
+                }
+            }
+        });
+        jPopupMenu.add(deleteItem);
+        table.add(jPopupMenu);
+        table.addMouseListener(new MouseListener(){
+            public void mouseClicked(MouseEvent e) {
+                if (e.getButton()==3) {
+                    int right=table.rowAtPoint(e.getPoint());
+                    System.out.println(right);
+                    table.setRowSelectionInterval(right,right);
+                    jPopupMenu.show(table, e.getX()+15, e.getY()+10);
+                }
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+            }
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        });
+        TablePanel.add(scrollPane);
+        TablePanel.revalidate();
+    }
+
 }

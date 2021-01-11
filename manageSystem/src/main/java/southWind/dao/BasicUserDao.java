@@ -1,8 +1,10 @@
 package southWind.dao;
 
+import southWind.entity.Protect;
 import southWind.entity.User;
 import southWind.entity.Vo.UserOutComeVo;
 import southWind.entity.Vo.UserVo;
+import southWind.entity.order;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -37,4 +39,10 @@ public interface BasicUserDao {
      * @throws SQLException
      */
     List<UserVo> findBasicUserAll()throws SQLException;
+
+    List<order> findBasicOrderAll()throws SQLException;
+
+    List<Protect> findBasicProtectAll()throws SQLException;
+
+    List<order> findBasicOrderByOrderName(String orderName)throws SQLException;
 }

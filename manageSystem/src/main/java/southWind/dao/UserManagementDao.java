@@ -3,6 +3,7 @@ package southWind.dao;
 import southWind.entity.User;
 import southWind.entity.Vo.UserVo;
 import southWind.entity.Vo.UserVoBuy;
+import southWind.entity.order;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -54,5 +55,7 @@ public interface UserManagementDao {
      * @throws SQLException
      */
     List<UserVoBuy> findUserProtectById(String userId) throws  SQLException;
+
+    int updateOrder(order order) throws SQLException;
 
 }

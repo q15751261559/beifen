@@ -3,10 +3,14 @@ package southWind.service.Impl;
 import org.junit.Test;
 import southWind.entity.User;
 import southWind.entity.Vo.UserVoBuy;
+import southWind.entity.order;
+import southWind.factory.DaoFactory;
 import southWind.factory.ServiceFactory;
 import southWind.service.UserManagementService;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -24,6 +28,19 @@ public class UserManagementServiceImplTest {
         User user=User.builder().userId("6").build();
         userManagementService.deleteUser(user);
 
+    }
+
+    @Test
+    public void updateOrder(){
+        order order= southWind.entity.order.builder()
+                .orderId("1")
+                .orderDatetime(new Date())
+                .build();
+        try {
+            DaoFactory.getUserManagementDaoInstance().updateOrder(order);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test

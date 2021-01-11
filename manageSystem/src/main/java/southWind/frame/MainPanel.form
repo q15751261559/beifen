@@ -71,7 +71,7 @@
                       </grid>
                     </constraints>
                     <properties>
-                      <text value="保存全部（切换显示）"/>
+                      <text value="保存全部"/>
                     </properties>
                   </component>
                   <component id="fb80" class="javax.swing.JButton" binding="重置Button" default-binding="true">
@@ -86,7 +86,7 @@
                   </component>
                 </children>
               </grid>
-              <grid id="3159" binding="userTablePanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+              <grid id="3159" binding="TablePanel" layout-manager="BorderLayout" hgap="0" vgap="0">
                 <constraints border-constraint="Center"/>
                 <properties>
                   <visible value="true"/>
@@ -165,14 +165,14 @@
               <grid row="0" column="5" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
-          <component id="669dc" class="javax.swing.JButton" binding="新增用户Button">
+          <component id="669dc" class="javax.swing.JButton" binding="新增Button">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false">
                 <preferred-size width="78" height="28"/>
               </grid>
             </constraints>
             <properties>
-              <text value="新增客户"/>
+              <text value=""/>
             </properties>
           </component>
           <hspacer id="7558a">

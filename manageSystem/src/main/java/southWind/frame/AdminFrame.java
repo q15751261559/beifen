@@ -57,7 +57,7 @@ public class AdminFrame extends JFrame{
             //user是1，member是2
             String account=accountFiled.getText().trim();
             String password=new String(passwordFiled.getPassword()).trim();
-            ResultEntity resultEntity= ServiceFactory.getAdminServiceInstance().adminLogin(account,password);
+            ResultEntity resultEntity=ServiceFactory.getAdminServiceInstance().adminLogin(account,password);
             ResultEntity resultEntity1=ServiceFactory.getMemberServiceInstance().memberLogin(account,password);
             ResultEntity resultEntity2=ServiceFactory.getUserServiceInstance().userLogin(account,password);
             if(resultEntity.getCode()==0){

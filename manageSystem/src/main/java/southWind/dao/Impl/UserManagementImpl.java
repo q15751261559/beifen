@@ -6,6 +6,7 @@ import southWind.dao.UserManagementDao;
 import southWind.entity.User;
 import southWind.entity.Vo.UserVo;
 import southWind.entity.Vo.UserVoBuy;
+import southWind.entity.order;
 import southWind.utils.DateUtils;
 import southWind.utils.JdbcUtil;
 
@@ -103,7 +104,20 @@ public class UserManagementImpl implements UserManagementDao {
         return userList;
     }
 
-
+    public int updateOrder(order order)throws SQLException
+    {
+        JdbcUtil jdbcUtil=JdbcUtil.getInitJdbcUtil();
+        Connection connection=jdbcUtil.getConnection();
+        String sql="UPDATE 订单 SET 订单产品=?,购买时间=? WHERE 订单编号=?";
+        PreparedStatement pstmt=connection.prepareStatement(sql);
+        pstmt.setString(1,order.getOrderProductId());
+        pstmt.setTimestamp(2,new Timestamp(order.getOrderDatetime().getTime()));
+        pstmt.setString(3,order.getOrderId());
+        int n=pstmt.executeUpdate();
+        pstmt.close();
+        connection.close();
+        return n;
+    }
 
     @Override
     public List<UserVoBuy> findUserProtectById(String userId) throws SQLException {
