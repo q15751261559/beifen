@@ -4,7 +4,6 @@
     <title>Insert title here</title>
 </head>
 <body>
-没注册的用户，请<a href="index/register">注册</a>!<br>
-已注册的用户，请<a href="index/login">登录</a>!
+<a href="index/fruit">查看水果信息</a><br>
 </body>
 </html>
