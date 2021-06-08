@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Form</title>
+</head>
+<body>
+<h1>FORM</h1>
+<form action="#" th:action="@{/login}" th:object="${loginBean}" method="post">
+    <p>用户名:<input type="text" th:field=" *{uname}" th:placeholder="请输入用户名" /><span th:errors="*{uname}"></span></p>
+    <p>年龄：<input type="text" th:field=" *{age}" th:placeholder="请输入角色" /><span th:errors="*{age}"></span></p>
+    <p>工作时间:<input type="date" th:field=" *{date}" th:placeholder="请输入角色" /><span th:errors="*{date}"></span></p>
+    <input type="submit" value="submit" /><input type="reset" value="Reset" />
+</form>
+</body>
+</html>
