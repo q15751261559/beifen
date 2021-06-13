@@ -2,6 +2,7 @@ package com.example.model;
 
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Past;
@@ -25,6 +26,7 @@ public class LoginBean {
 
     @Range(min = 18,max = 60,message = "年龄在18到60之间")
     int age;
+    @DateTimeFormat(fallbackPatterns = "yyyy-MM-dd")
     @Past(message = "日期在系统时间之前")
     Date date;
 
